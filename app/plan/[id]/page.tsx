@@ -127,13 +127,15 @@ export default function PlanPage({ params }: PlanPageProps) {
       <div className="px-4 pb-10">
         <NineGrid plan={plan} completedCount={completedCount} onShotClick={handleShotClick} onReorder={reorderShots} onRename={handleRename} />
         {(xhsLoading || xhsItems.length > 0) && (
-          <XhsRefPanel
-            keyword={xhsKeyword}
-            items={xhsItems}
-            loading={xhsLoading}
-            onAddToShot={handleAddRefToShot}
-            shotTitles={plan.shots.map((s) => ({ id: s.id, title: s.title }))}
-          />
+          <div className="overflow-hidden">
+            <XhsRefPanel
+              keyword={xhsKeyword}
+              items={xhsItems}
+              loading={xhsLoading}
+              onAddToShot={handleAddRefToShot}
+              shotTitles={plan.shots.map((s) => ({ id: s.id, title: s.title }))}
+            />
+          </div>
         )}
       </div>
 

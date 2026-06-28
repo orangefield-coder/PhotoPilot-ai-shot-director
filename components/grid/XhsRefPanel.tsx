@@ -33,7 +33,7 @@ export function XhsRefPanel({ keyword, items, loading, onAddToShot, shotTitles }
         <p className="text-[9px] text-stone-300">来自小红书 · 搜索词：{keyword}</p>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex gap-2 overflow-x-auto pb-2 max-w-full">
         {items.map((item) => {
           const proxiedUrl = `/api/img-proxy?url=${encodeURIComponent(item.coverUrl)}`
           return (
