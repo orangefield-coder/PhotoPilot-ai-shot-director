@@ -166,10 +166,18 @@ export default function HomePage() {
           </div>
           <div className="flex flex-col items-center gap-2">
             {LOADING_STEPS.map((step, i) => (
-              <p key={step} className={`text-sm transition-all duration-500
-                ${i === loadingStep ? 'text-stone-900 font-medium' : i < loadingStep ? 'text-stone-400 line-through' : 'text-stone-300'}`}>
-                {step}
-              </p>
+              <div key={step} className="flex items-center gap-2">
+                <p className={`text-sm transition-all duration-500
+                  ${i === loadingStep ? 'text-stone-900 font-medium' : i < loadingStep ? 'text-stone-400 line-through' : 'text-stone-300'}`}>
+                  {step}
+                </p>
+                {i === loadingStep && (
+                  <svg className="w-3.5 h-3.5 animate-spin text-stone-500" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+                  </svg>
+                )}
+              </div>
             ))}
           </div>
           <div className="w-full h-px bg-stone-200 relative overflow-hidden">
