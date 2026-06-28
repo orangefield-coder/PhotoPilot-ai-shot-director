@@ -189,6 +189,8 @@ export function ShotDetail({ shot, planId, profile, onComplete, onClose, onUpdat
       setAiPrompt(prompt)
       if (imageUrl) {
         setRefs((prev) => [...prev, imageUrl])
+        const existing = shot.savedRefs ?? []
+        onUpdate(shot.id, { savedRefs: [...existing, imageUrl] })
       }
     } catch (err) {
       console.error('[generate-ref]', err)
