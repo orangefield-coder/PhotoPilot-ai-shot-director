@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { ImageUploader } from '@/components/upload/ImageUploader'
 import { Button } from '@/components/ui/button'
@@ -60,7 +60,25 @@ export default function HomePage() {
   const [sceneNotes, setSceneNotes] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [loadingStep, setLoadingStep] = useState(0)
+  const [progress, setProgress] = useState(0)
+  const progressRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  // Progress targets per step: step 0 → 0-30%, step 1 → 30-65%, step 2 → 65-90%
+  const STEP_TARGETS = [30, 65, 90]
+
+  useEffect(() => {
+    if (!loading) { setProgress(0); return }
+    const target = STEP_TARGETS[loadingStep] ?? 90
+    if (progressRef.current) clearInterval(progressRef.current)
+    progressRef.current = setInterval(() => {
+      setProgress((p) => {
+        if (p >= target - 1) { clearInterval(progressRef.current!); return p }
+        return p + 1
+      })
+    }, 60)
+    return () => { if (progressRef.current) clearInterval(progressRef.current) }
+  }, [loading, loadingStep])
 
   const canGenerate = selfie && scene && !loading
 
@@ -142,7 +160,7 @@ export default function HomePage() {
   if (loading) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center bg-stone-50 px-6 gap-6">
-        <div className="flex flex-col items-center gap-6">
+        <div className="flex flex-col items-center gap-6 w-full max-w-xs">
           <div className="w-12 h-12 border border-stone-900 flex items-center justify-center text-stone-900 text-xs tracking-widest animate-pulse">
             REC
           </div>
@@ -154,6 +172,13 @@ export default function HomePage() {
               </p>
             ))}
           </div>
+          <div className="w-full h-px bg-stone-200 relative overflow-hidden">
+            <div
+              className="absolute left-0 top-0 h-full bg-stone-900 transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <p className="text-[10px] text-stone-400 tracking-widest">{progress}%</p>
         </div>
       </main>
     )
