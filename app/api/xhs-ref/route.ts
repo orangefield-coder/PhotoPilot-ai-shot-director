@@ -2,11 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const EXCLUDE_KEYWORDS = ['自拍', '日常vlog', 'vlog', '护肤', '穿搭', '测评', '好物', '开箱']
 
-const PHOTOGRAPHY_TAGS = [
-  '摄影', '人像摄影', '拍照', '写真', '街拍', '胶片摄影', '旅拍',
-  '人像', '摄影作品', '拍照姿势', '拍照技巧', '毕业照', '摄影师',
-  'portrait', 'photography', 'photo',
-]
+const PHOTOGRAPHY_TAGS = ['摄影', 'photography', 'photo']
 
 async function searchByKeyword(keyword: string, apiKey: string) {
   const res = await fetch('https://redfox.hk/story/api/xhsUser/searchArticle', {
