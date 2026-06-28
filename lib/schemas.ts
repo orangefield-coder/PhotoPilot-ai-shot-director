@@ -12,7 +12,7 @@ export const SceneProfileSchema = z.object({
   }),
   scene: z.object({
     type: stringOrArray,
-    atmosphere: stringOrArray,
+    atmosphere: stringOrArray.optional(),
     elements: z.array(z.string()),
   }),
 })
@@ -20,17 +20,17 @@ export const SceneProfileSchema = z.object({
 export const ShotSchema = z.object({
   id: z.number(),
   title: z.string(),
-  goal: z.string(),
-  environment: z.string(),
-  pose: z.string(),
   composition: z.string(),
-  focal_length: z.string(),
-  reason: z.string(),
+  scene_prompt: z.string(),
+  behavior: z.string(),
+  lighting: z.string(),
+  angle: z.string(),
   status: z.enum(['pending', 'completed']).default('pending'),
 })
 
 export const PlanSchema = z.object({
   plan_name: z.string(),
+  xhs_keywords: z.array(z.string()).optional(),
   shots: z.array(ShotSchema).length(9),
 })
 

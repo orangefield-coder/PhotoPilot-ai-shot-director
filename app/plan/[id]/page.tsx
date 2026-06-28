@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { use } from 'react'
-import { Plan, Shot } from '@/lib/types'
+import { Plan, Shot, XhsRefItem } from '@/lib/types'
 import { NineGrid } from '@/components/grid/NineGrid'
 import { ShotDetail } from '@/components/detail/ShotDetail'
+import { XhsRefPanel } from '@/components/grid/XhsRefPanel'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { usePlan, getLocalPlans } from '@/hooks/usePlan'
 
@@ -38,7 +39,34 @@ export default function PlanPage({ params }: PlanPageProps) {
       .finally(() => setLoading(false))
   }, [id])
 
-  const { plan, markComplete, completedCount } = usePlan(initPlan ?? undefined, id)
+  const { plan, setPlan, markComplete, updateShot, reorderShots, completedCount } = usePlan(initPlan ?? undefined, id)
+
+  // XHS ref images — fetch once when keyword is first available
+  const [xhsItems, setXhsItems] = useState<XhsRefItem[]>([])
+  const [xhsLoading, setXhsLoading] = useState(false)
+  const [xhsKeyword, setXhsKeyword] = useState('')
+  const xhsFetched = useRef(false)
+
+  useEffect(() => {
+    if (xhsFetched.current) return
+    const keyword = plan?.xhsKeyword
+    if (!keyword) return
+    xhsFetched.current = true
+    setXhsKeyword(keyword)
+    setXhsLoading(true)
+    fetch(`/api/xhs-ref?keyword=${encodeURIComponent(keyword)}`)
+      .then((r) => r.json())
+      .then((d) => { if (d.items) setXhsItems(d.items) })
+      .finally(() => setXhsLoading(false))
+  }, [plan?.xhsKeyword])
+
+  // Keep selectedShot in sync with plan state after edits
+  useEffect(() => {
+    if (selectedShot && plan) {
+      const updated = plan.shots.find((s) => s.id === selectedShot.id)
+      if (updated) setSelectedShot(updated)
+    }
+  }, [plan])
 
   const handleShotClick = (shotId: number) => {
     const shot = plan?.shots.find((s) => s.id === shotId)
@@ -48,8 +76,27 @@ export default function PlanPage({ params }: PlanPageProps) {
   const handleComplete = async () => {
     if (!selectedShot) return
     await markComplete(selectedShot.id)
-    // update selected shot state
     setSelectedShot((prev) => prev ? { ...prev, status: 'completed' } : null)
+  }
+
+  const handleRename = (name: string) => {
+    if (!plan) return
+    const updated = { ...plan, plan_name: name }
+    setPlan(updated)
+    if (id.startsWith('local-')) {
+      const locals = JSON.parse(localStorage.getItem('localPlans') || '{}')
+      if (locals[id]) { locals[id].plan = updated; localStorage.setItem('localPlans', JSON.stringify(locals)) }
+    } else {
+      fetch(`/api/plans/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: updated }) })
+    }
+  }
+
+  const handleAddRefToShot = (url: string, shotId: number) => {
+    const shot = plan?.shots.find((s) => s.id === shotId)
+    if (!shot) return
+    const existing = shot.savedRefs ?? []
+    if (existing.includes(url)) return
+    updateShot(shotId, { savedRefs: [...existing, url] })
   }
 
   if (loading) {
@@ -78,7 +125,16 @@ export default function PlanPage({ params }: PlanPageProps) {
       </div>
 
       <div className="px-4 pb-10">
-        <NineGrid plan={plan} completedCount={completedCount} onShotClick={handleShotClick} />
+        <NineGrid plan={plan} completedCount={completedCount} onShotClick={handleShotClick} onReorder={reorderShots} onRename={handleRename} />
+        {(xhsLoading || xhsItems.length > 0) && (
+          <XhsRefPanel
+            keyword={xhsKeyword}
+            items={xhsItems}
+            loading={xhsLoading}
+            onAddToShot={handleAddRefToShot}
+            shotTitles={plan.shots.map((s) => ({ id: s.id, title: s.title }))}
+          />
+        )}
       </div>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -86,8 +142,11 @@ export default function PlanPage({ params }: PlanPageProps) {
           {selectedShot && (
             <ShotDetail
               shot={selectedShot}
+              planId={id}
+              profile={plan.profile}
               onComplete={handleComplete}
               onClose={() => setSheetOpen(false)}
+              onUpdate={updateShot}
             />
           )}
         </SheetContent>

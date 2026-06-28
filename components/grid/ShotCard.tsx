@@ -1,7 +1,10 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { Shot } from '@/lib/types'
-import { Badge } from '@/components/ui/badge'
 
 interface ShotCardProps {
   shot: Shot
@@ -9,41 +12,54 @@ interface ShotCardProps {
   onClick: () => void
 }
 
-const SHOT_ICONS = ['🌅', '🧍', '🤝', '👤', '🔍', '💃', '🚶', '✨', '🎨']
-
 export function ShotCard({ shot, index, onClick }: ShotCardProps) {
   const isCompleted = shot.status === 'completed'
+  const hasPhoto = !!shot.selectedPhoto
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: shot.id })
+
+  const dragStyle = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    touchAction: 'none' as const,
+  }
 
   return (
-    <button
-      onClick={onClick}
-      className={`relative flex flex-col items-start justify-end w-full aspect-square rounded-xl p-2 transition-all active:scale-95
-        ${isCompleted
-          ? 'bg-stone-800 ring-2 ring-stone-600'
-          : 'bg-stone-100 ring-1 ring-stone-200 hover:bg-stone-200'}`}
-    >
-      {/* Icon */}
-      <span className="absolute top-2 left-2 text-xl">{SHOT_ICONS[index] || '📸'}</span>
-
-      {/* Completion checkmark */}
-      {isCompleted && (
-        <span className="absolute top-2 right-2 text-base">✓</span>
-      )}
-
-      {/* Title */}
-      <p className={`text-xs font-medium leading-tight line-clamp-2 text-left
-        ${isCompleted ? 'text-stone-300' : 'text-stone-700'}`}>
-        {shot.title.split('·')[0]}
-      </p>
-
-      {/* Composition badge */}
-      <Badge
-        variant="secondary"
-        className={`mt-1 text-[10px] px-1.5 py-0 h-4
-          ${isCompleted ? 'bg-stone-700 text-stone-400' : 'bg-stone-200 text-stone-500'}`}
+    <div ref={setNodeRef} style={dragStyle} className="relative w-full aspect-square">
+      <div
+        className="relative flex flex-col items-start justify-between w-full h-full rounded-[20px] p-2.5 cursor-grab active:cursor-grabbing active:scale-[0.96] overflow-hidden transition-all duration-500"
+        style={{
+          opacity: isDragging ? 0.3 : 1,
+          background: isCompleted && !hasPhoto ? '#e8ddd4' : '#f5f5f4',
+          border: '0.5px solid rgba(255,255,255,0.55)',
+          boxShadow: isCompleted && !hasPhoto
+            ? '0 2px 16px rgba(180,150,120,0.25)'
+            : '0 2px 12px rgba(0,0,0,0.06)',
+        }}
+        {...attributes}
+        {...listeners}
+        onClick={onClick}
       >
-        {shot.composition}
-      </Badge>
-    </button>
+        {hasPhoto && (
+          <>
+            <Image src={shot.selectedPhoto!} alt="" fill className="object-cover" />
+            <div className="absolute inset-x-0 bottom-0 h-16"
+              style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)' }} />
+          </>
+        )}
+
+        <p className={`relative font-[family-name:var(--font-serif)] text-xl leading-tight w-full text-center
+          ${hasPhoto ? 'text-white/80' : isCompleted ? 'text-stone-500' : 'text-stone-700'}`}>
+          {shot.composition}
+        </p>
+
+        <div className="relative flex items-end justify-center w-full">
+          <p className={`text-[10px] leading-tight line-clamp-2 text-center
+            ${hasPhoto ? 'text-white/80' : isCompleted ? 'text-stone-400' : 'text-stone-500'}`}>
+            {shot.title.split('·')[0]}
+          </p>
+        </div>
+      </div>
+    </div>
   )
 }
+

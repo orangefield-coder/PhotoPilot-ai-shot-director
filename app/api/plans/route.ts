@@ -5,11 +5,13 @@ import { Plan } from '@/lib/types'
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { userToken, selfieUrl, sceneUrl, shotType, plan } = body as {
+    const { userToken, selfieUrl, sceneUrl, shotType, visualStyle, emotion, plan } = body as {
       userToken: string
       selfieUrl: string
       sceneUrl: string
       shotType: string
+      visualStyle?: string
+      emotion?: string
       plan: Plan
     }
 
@@ -25,6 +27,8 @@ export async function POST(req: NextRequest) {
         selfie_url: selfieUrl,
         scene_url: sceneUrl,
         shot_type: shotType,
+        visual_style: visualStyle || null,
+        emotion: emotion || null,
         plan_json: plan,
         status: 'active',
       })

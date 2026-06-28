@@ -5,18 +5,45 @@ export type ShotType = string
 export interface Shot {
   id: number
   title: string
-  goal: string
-  environment: string
-  pose: string
   composition: string
-  focal_length: string
-  reason: string
+  scene_prompt: string
+  behavior: string
+  lighting: string
+  angle: string
   status: ShotStatus
+  selectedPhoto?: string
+  selectedPhotoIndex?: number
+  savedRefs?: string[]  // URLs saved from XhsRefPanel or elsewhere
+}
+
+export interface SceneProfile {
+  person: {
+    person_count: number
+    clothing: string
+    style: string
+    color_palette: string
+  }
+  scene: {
+    type: string
+    atmosphere?: string
+    elements: string[]
+  }
 }
 
 export interface Plan {
   plan_name: string
   shots: Shot[]
+  profile?: SceneProfile
+  xhsKeyword?: string  // keyword used to fetch ref images
+}
+
+export interface XhsRefItem {
+  photoId: string
+  title: string
+  coverUrl: string
+  link: string
+  likeCount: number
+  category: string
 }
 
 export interface PlanRecord {
@@ -30,15 +57,3 @@ export interface PlanRecord {
   status: string
 }
 
-export interface SceneProfile {
-  person: {
-    clothing: string
-    style: string
-    color_palette: string
-  }
-  scene: {
-    type: string
-    atmosphere: string
-    elements: string[]
-  }
-}

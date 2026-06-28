@@ -10,6 +10,10 @@ interface PlanMeta {
   shot_type: string
   selfie_url?: string
   scene_url?: string
+  plan_name?: string
+  visual_style?: string
+  emotion?: string
+  plan_json?: { plan_name?: string }
 }
 
 export default function HistoryPage() {
@@ -75,23 +79,29 @@ export default function HistoryPage() {
           </div>
         )}
 
-        {plans.map((plan) => (
-          <div key={plan.id}
-            className="bg-white rounded-2xl p-4 flex items-center gap-3 shadow-sm border border-stone-100">
-            <button onClick={() => router.push(`/plan/${plan.id}`)} className="flex-1 flex items-center gap-3 text-left">
-              <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center text-xl shrink-0">📷</div>
-              <div>
-                <p className="text-sm font-medium text-stone-800">{plan.shot_type || '拍摄方案'}</p>
+        {plans.map((plan) => {
+          const title = plan.plan_name || plan.plan_json?.plan_name || plan.shot_type || '拍摄方案'
+          const tags = [plan.shot_type, plan.visual_style, plan.emotion].filter(Boolean)
+          return (
+            <div key={plan.id}
+              className="bg-white rounded-2xl p-4 flex items-center gap-3 shadow-sm border border-stone-100">
+              <button onClick={() => router.push(`/plan/${plan.id}`)} className="flex-1 text-left">
+                <p className="text-sm font-medium text-stone-800 mb-1">{title}</p>
+                <div className="flex flex-wrap gap-1 mb-1">
+                  {tags.map((tag) => (
+                    <span key={tag} className="text-[10px] px-2 py-0.5 bg-stone-100 text-stone-500 rounded-full">{tag}</span>
+                  ))}
+                </div>
                 <p className="text-xs text-stone-400">{formatDate(plan.created_at)}</p>
-              </div>
-            </button>
-            <button onClick={() => handleDelete(plan.id)}
-              className="text-stone-300 hover:text-red-400 text-lg px-1 transition-colors"
-              aria-label="删除">
-              ×
-            </button>
-          </div>
-        ))}
+              </button>
+              <button onClick={() => handleDelete(plan.id)}
+                className="text-stone-300 hover:text-red-400 text-lg px-1 transition-colors"
+                aria-label="删除">
+                ×
+              </button>
+            </div>
+          )
+        })}
       </div>
     </main>
   )

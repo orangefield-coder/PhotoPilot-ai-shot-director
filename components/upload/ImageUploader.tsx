@@ -7,16 +7,23 @@ interface ImageUploaderProps {
   label: string
   sublabel: string
   value: File | null
-  onChange: (file: File) => void
+  onChange: (file: File | null) => void
+  icon?: string
 }
 
-export function ImageUploader({ label, sublabel, value, onChange }: ImageUploaderProps) {
+export function ImageUploader({ label, sublabel, value, onChange, icon }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
   const preview = value ? URL.createObjectURL(value) : null
 
   const handleFile = (file: File) => {
     if (file.type.startsWith('image/')) onChange(file)
+  }
+
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onChange(null)
+    if (inputRef.current) inputRef.current.value = ''
   }
 
   return (
@@ -30,11 +37,21 @@ export function ImageUploader({ label, sublabel, value, onChange }: ImageUploade
         ${preview ? 'border-solid border-stone-200' : ''}`}
     >
       {preview ? (
-        <Image src={preview} alt={label} fill className="object-cover" />
+        <>
+          <Image src={preview} alt={label} fill className="object-cover" />
+          <button
+            onClick={handleClear}
+            className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/50 text-white text-xs flex items-center justify-center leading-none hover:bg-black/70 transition-colors"
+          >×</button>
+        </>
       ) : (
         <div className="flex flex-col items-center gap-2 p-4 text-center">
-          <div className="w-12 h-12 rounded-full bg-stone-200 flex items-center justify-center text-2xl">
-            📷
+          <div className="w-12 h-12 flex items-center justify-center">
+            {icon ? (
+              <Image src={icon} alt="" width={48} height={48} className="object-contain" />
+            ) : (
+              <span className="text-2xl">📷</span>
+            )}
           </div>
           <p className="text-sm font-medium text-stone-700">{label}</p>
           <p className="text-xs text-stone-400">{sublabel}</p>
