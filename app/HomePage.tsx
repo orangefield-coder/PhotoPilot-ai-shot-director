@@ -241,9 +241,8 @@ export default function HomePage() {
               <p className="text-[10px] tracking-[0.15em] uppercase text-stone-500">拍摄风格（可选）</p>
               <input
                 type="text"
-                value={VISUAL_STYLES.includes(visualStyle) ? '' : visualStyle}
+                value={visualStyle}
                 onChange={(e) => setVisualStyle(e.target.value)}
-                onFocus={() => { if (VISUAL_STYLES.includes(visualStyle)) setVisualStyle('') }}
                 placeholder="或自定义输入，如：复古胶片"
                 className="w-full h-9 px-3 border text-xs focus:outline-none placeholder:text-stone-400 rounded-xl bg-white border-stone-200 text-stone-900 focus:ring-2 focus:ring-stone-300"
               />
