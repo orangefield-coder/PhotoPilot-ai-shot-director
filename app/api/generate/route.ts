@@ -37,9 +37,9 @@ export async function POST(req: NextRequest) {
     console.log('[generate] result:', JSON.stringify(plan, null, 2))
 
     const aiKeywords: string[] = (plan as { xhs_keywords?: string[] }).xhs_keywords ?? []
-    plan.xhsKeyword = aiKeywords[0] || shotType
+    const result = { ...plan, xhsKeyword: aiKeywords[0] || shotType }
 
-    return NextResponse.json(plan)
+    return NextResponse.json(result)
   } catch (err) {
     console.error('[generate]', err)
     return NextResponse.json({ error: 'Plan generation failed' }, { status: 500 })
