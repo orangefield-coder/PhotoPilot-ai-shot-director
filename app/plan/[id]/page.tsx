@@ -8,7 +8,7 @@ import { NineGrid } from '@/components/grid/NineGrid'
 import { ShotDetail } from '@/components/detail/ShotDetail'
 import { XhsRefPanel } from '@/components/grid/XhsRefPanel'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
-import { usePlan, getLocalPlans } from '@/hooks/usePlan'
+import { usePlan, getLocalPlans, getUserToken } from '@/hooks/usePlan'
 
 interface PlanPageProps {
   params: Promise<{ id: string }>
@@ -46,6 +46,36 @@ export default function PlanPage({ params }: PlanPageProps) {
   const [xhsLoading, setXhsLoading] = useState(false)
   const [xhsKeyword, setXhsKeyword] = useState('')
   const xhsFetched = useRef(false)
+
+  // Rating + feedback state
+  const [rating, setRating] = useState<1 | -1 | null>(null)
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
+  const [feedbackText, setFeedbackText] = useState('')
+  const [feedbackSent, setFeedbackSent] = useState(false)
+
+  const handleRate = async (value: 1 | -1) => {
+    const next = rating === value ? null : value
+    setRating(next)
+    if (!id.startsWith('local-') && next !== null) {
+      await fetch(`/api/plans/${id}/rate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating: next }),
+      })
+    }
+  }
+
+  const handleFeedback = async () => {
+    if (!feedbackText.trim()) return
+    await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userToken: getUserToken(), planId: id, content: feedbackText }),
+    })
+    setFeedbackSent(true)
+    setFeedbackText('')
+    setTimeout(() => { setFeedbackOpen(false); setFeedbackSent(false) }, 1500)
+  }
 
   useEffect(() => {
     if (xhsFetched.current) return
@@ -135,6 +165,56 @@ export default function PlanPage({ params }: PlanPageProps) {
               onAddToShot={handleAddRefToShot}
               shotTitles={plan.shots.map((s) => ({ id: s.id, title: s.title }))}
             />
+          </div>
+        )}
+
+        {/* Rating + feedback */}
+        <div className="mt-8 flex flex-col items-center gap-3">
+          <p className="text-[10px] tracking-[0.15em] text-stone-400">这份方案怎么样？</p>
+          <div className="flex gap-4">
+            <button
+              onClick={() => handleRate(1)}
+              className={`w-12 h-12 rounded-full border text-xl transition-all
+                ${rating === 1 ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-300 text-stone-400 hover:border-stone-500'}`}
+            >👍</button>
+            <button
+              onClick={() => handleRate(-1)}
+              className={`w-12 h-12 rounded-full border text-xl transition-all
+                ${rating === -1 ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-300 text-stone-400 hover:border-stone-500'}`}
+            >👎</button>
+          </div>
+          <button
+            onClick={() => setFeedbackOpen(true)}
+            className="text-xs text-stone-400 underline underline-offset-2 hover:text-stone-600"
+          >留下反馈</button>
+        </div>
+
+        {/* Feedback sheet */}
+        {feedbackOpen && (
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40"
+            onClick={() => setFeedbackOpen(false)}>
+            <div className="w-full max-w-md bg-white rounded-t-2xl px-6 pt-6 pb-10"
+              onClick={(e) => e.stopPropagation()}>
+              <p className="text-sm font-medium text-stone-800 mb-3">你的反馈</p>
+              {feedbackSent ? (
+                <p className="text-sm text-stone-500 text-center py-4">感谢反馈 ✓</p>
+              ) : (
+                <>
+                  <textarea
+                    value={feedbackText}
+                    onChange={(e) => setFeedbackText(e.target.value)}
+                    placeholder="告诉我们哪里可以改进..."
+                    rows={4}
+                    className="w-full px-3 py-2.5 text-sm border border-stone-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-stone-300 placeholder:text-stone-300"
+                  />
+                  <button
+                    onClick={handleFeedback}
+                    disabled={!feedbackText.trim()}
+                    className="mt-3 w-full h-11 rounded-xl bg-stone-900 text-white text-sm font-medium disabled:opacity-30"
+                  >提交</button>
+                </>
+              )}
+            </div>
           </div>
         )}
       </div>
