@@ -140,8 +140,15 @@ export function ImageAnnotator({ imageUrl, onSave, onCancel }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black flex flex-col">
-      {/* Toolbar */}
-      <div className="flex items-center gap-2 px-3 py-2 bg-stone-900 overflow-x-auto shrink-0">
+      {/* Top bar: cancel + save */}
+      <div className="flex items-center justify-between px-4 py-3 bg-stone-900 shrink-0">
+        <button onClick={onCancel} className="text-sm text-stone-400 hover:text-white px-2">取消</button>
+        <p className="text-xs text-stone-500 tracking-widest">标注</p>
+        <button onClick={handleSave} className="text-sm bg-white text-stone-900 font-medium px-4 py-1.5 rounded-lg">完成</button>
+      </div>
+
+      {/* Tool + color bar */}
+      <div className="flex items-center gap-2 px-3 py-2 bg-stone-800 overflow-x-auto shrink-0">
         {(['pen', 'arrow', 'text', 'eraser'] as Tool[]).map((t) => (
           <button key={t} onClick={() => setTool(t)}
             className={`shrink-0 w-9 h-9 rounded-lg text-base flex items-center justify-center transition-all
@@ -156,9 +163,6 @@ export function ImageAnnotator({ imageUrl, onSave, onCancel }: Props) {
             className={`shrink-0 w-6 h-6 rounded-full border-2 transition-all
               ${color === c ? 'border-white scale-110' : 'border-transparent'}`} />
         ))}
-        <div className="flex-1" />
-        <button onClick={onCancel} className="shrink-0 text-xs text-stone-400 hover:text-white px-2">取消</button>
-        <button onClick={handleSave} className="shrink-0 text-xs bg-white text-stone-900 font-medium px-3 py-1.5 rounded-lg">完成</button>
       </div>
 
       {/* Canvas area */}
