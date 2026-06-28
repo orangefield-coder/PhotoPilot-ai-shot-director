@@ -16,7 +16,11 @@ async function searchByKeyword(keyword: string, apiKey: string) {
 
 function isPhotographyWork(item: Record<string, unknown>): boolean {
   const desc = ((item.workDesc as string) || '').toLowerCase()
-  return !EXCLUDE_KEYWORDS.some((kw) => desc.includes(kw))
+  if (EXCLUDE_KEYWORDS.some((kw) => desc.includes(kw))) return false
+  const workType = ((item.workType as string) || '').toLowerCase()
+  const noteType = ((item.noteType as string) || '').toLowerCase()
+  if (workType === 'video' || noteType === 'video') return false
+  return true
 }
 
 export async function GET(req: NextRequest) {
