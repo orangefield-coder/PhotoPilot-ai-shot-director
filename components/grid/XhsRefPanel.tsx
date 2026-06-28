@@ -34,41 +34,40 @@ export function XhsRefPanel({ keyword, items, loading, onAddToShot, shotTitles }
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-2">
-        {items.map((item) => (
-          <div key={item.photoId} className="relative shrink-0 flex flex-col" style={{ width: 96 }}>
-            <div className="relative w-24 rounded-xl overflow-hidden bg-stone-100" style={{ aspectRatio: '3/4' }}>
-              <Image
-                src={item.coverUrl}
-                alt={item.title}
-                fill
-                className="object-cover"
-                unoptimized
-              />
-              {/* add to REF button */}
-              <button
-                onClick={() => setAddingUrl(item.coverUrl)}
-                className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-black/50 text-white text-xs flex items-center justify-center hover:bg-black/70 transition-colors"
-                title="加入镜头REF"
-              >+</button>
+        {items.map((item) => {
+          const proxiedUrl = `/api/img-proxy?url=${encodeURIComponent(item.coverUrl)}`
+          return (
+            <div key={item.photoId} className="relative shrink-0 flex flex-col" style={{ width: 96 }}>
+              <div className="relative w-24 rounded-xl overflow-hidden bg-stone-100" style={{ aspectRatio: '3/4' }}>
+                <Image
+                  src={proxiedUrl}
+                  alt={item.title}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+                <button
+                  onClick={() => setAddingUrl(item.coverUrl)}
+                  className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-black/50 text-white text-xs flex items-center justify-center hover:bg-black/70 transition-colors"
+                  title="加入镜头REF"
+                >+</button>
+              </div>
+              <p className="text-[9px] text-stone-500 mt-1 line-clamp-1 leading-tight">
+                {item.title || '无标题'}
+              </p>
+              <a
+                href={item.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[9px] text-stone-400 underline leading-tight"
+              >
+                查看原帖
+              </a>
             </div>
-
-            {/* title + source */}
-            <p className="text-[9px] text-stone-500 mt-1 line-clamp-1 leading-tight">
-              {item.title || '��标题'}
-            </p>
-            <a
-              href={item.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[9px] text-stone-400 underline leading-tight"
-            >
-              查看原帖
-            </a>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
-      {/* shot picker overlay */}
       {addingUrl && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40"
           onClick={() => setAddingUrl(null)}>
