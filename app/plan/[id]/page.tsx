@@ -174,14 +174,24 @@ export default function PlanPage({ params }: PlanPageProps) {
           <div className="flex gap-4">
             <button
               onClick={() => handleRate(1)}
-              className={`w-12 h-12 rounded-full border text-xl transition-all
-                ${rating === 1 ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-300 text-stone-400 hover:border-stone-500'}`}
-            >👍</button>
+              className={`w-12 h-12 rounded-full border transition-all flex items-center justify-center
+                ${rating === 1 ? 'border-stone-700 bg-stone-700' : 'border-stone-300 hover:border-stone-500'}`}
+            >
+              <svg viewBox="0 0 24 24" className={`w-5 h-5 ${rating === 1 ? 'fill-white' : 'fill-stone-400'}`}>
+                <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/>
+                <path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3v11z"/>
+              </svg>
+            </button>
             <button
               onClick={() => handleRate(-1)}
-              className={`w-12 h-12 rounded-full border text-xl transition-all
-                ${rating === -1 ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-300 text-stone-400 hover:border-stone-500'}`}
-            >👎</button>
+              className={`w-12 h-12 rounded-full border transition-all flex items-center justify-center
+                ${rating === -1 ? 'border-stone-700 bg-stone-700' : 'border-stone-300 hover:border-stone-500'}`}
+            >
+              <svg viewBox="0 0 24 24" className={`w-5 h-5 ${rating === -1 ? 'fill-white' : 'fill-stone-400'}`}>
+                <path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/>
+                <path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17V2z"/>
+              </svg>
+            </button>
           </div>
           <button
             onClick={() => setFeedbackOpen(true)}
@@ -195,7 +205,7 @@ export default function PlanPage({ params }: PlanPageProps) {
             onClick={() => setFeedbackOpen(false)}>
             <div className="w-full max-w-md bg-white rounded-t-2xl px-6 pt-6 pb-10"
               onClick={(e) => e.stopPropagation()}>
-              <p className="text-sm font-medium text-stone-800 mb-3">你的反馈</p>
+              <p className="text-sm font-medium text-stone-800 mb-3">您的反馈</p>
               {feedbackSent ? (
                 <p className="text-sm text-stone-500 text-center py-4">感谢反馈 ✓</p>
               ) : (
