@@ -379,7 +379,7 @@ export function ShotDetail({ shot, planId, profile, onComplete, onClose, onUpdat
           className={`flex-1 h-11 rounded-xl text-sm font-medium tracking-[-0.011em] transition-all active:scale-[0.98] border
             ${isCompleted ? 'border-stone-400 text-stone-500 hover:bg-stone-100' : 'border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white'}`}
         >
-          {isCompleted ? '已完成（点击撤销）' : '标记完成'}
+          {isCompleted ? '已完成' : '标记完成'}
         </button>
       </div>
 

@@ -139,7 +139,7 @@ export function ImageAnnotator({ imageUrl, onSave, onCancel }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col">
+    <div className="fixed inset-0 z-50 bg-black flex flex-col" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       {/* Top bar: cancel + save */}
       <div className="flex items-center justify-between px-4 py-3 bg-stone-900 shrink-0">
         <button onClick={onCancel} className="text-sm text-stone-400 hover:text-white px-2">取消</button>
@@ -176,7 +176,7 @@ export function ImageAnnotator({ imageUrl, onSave, onCancel }: Props) {
 
       {/* Text input popup */}
       {textPos && (
-        <div className="absolute inset-x-0 bottom-0 bg-stone-900 px-4 py-3 flex gap-2 items-center">
+        <div className="absolute inset-x-0 bottom-0 bg-stone-900 px-4 py-3 flex gap-2 items-center" style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
           <input autoFocus value={textInput} onChange={(e) => setTextInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && commitText()}
             placeholder="输入文字，回车确认"

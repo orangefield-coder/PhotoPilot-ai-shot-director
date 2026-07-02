@@ -148,7 +148,7 @@ export default function PlanPage({ params }: PlanPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-stone-50 max-w-md mx-auto">
+    <main className="min-h-screen bg-stone-50 max-w-md mx-auto w-full overflow-x-hidden">
       {/* Nav */}
       <div className="flex items-center justify-between px-6 pt-10 pb-4">
         <button onClick={() => router.push('/')} className="text-stone-400 text-sm hover:text-stone-600">← 返回</button>
