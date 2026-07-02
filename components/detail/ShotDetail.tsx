@@ -242,7 +242,7 @@ export function ShotDetail({ shot, planId, profile, onComplete, onClose, onUpdat
       <div className="flex flex-col mb-5">
         {fields.map((key, i) => (
           <div key={key} className={`flex flex-col py-3 ${i < fields.length - 1 ? 'border-b border-stone-100' : ''}`}>
-            <p className="text-[9px] tracking-[0.2em] text-stone-400 mb-1 uppercase">{FIELD_LABELS[key]}</p>
+            <p className="text-xs tracking-[0.15em] text-stone-400 mb-1 uppercase">{FIELD_LABELS[key]}</p>
             {editing ? (
               <textarea
                 value={draft[key]}
@@ -263,7 +263,7 @@ export function ShotDetail({ shot, planId, profile, onComplete, onClose, onUpdat
       {/* Refs — manual upload + AI generate */}
       <div className="flex flex-col gap-2 mb-5">
         <div className="flex items-center justify-between">
-          <p className="text-[9px] tracking-[0.2em] text-stone-400">参考图 REF</p>
+          <p className="text-xs tracking-[0.15em] text-stone-400">参考图 REF</p>
           <div className="flex items-center gap-3">
             {aiPrompt && (
               <button
@@ -338,7 +338,7 @@ export function ShotDetail({ shot, planId, profile, onComplete, onClose, onUpdat
 
       {/* Captured photos album */}
       <div className="flex flex-col gap-2 mb-5">
-        <p className="text-[9px] tracking-[0.2em] text-stone-400">拍摄照片 PHOTOS</p>
+        <p className="text-xs tracking-[0.15em] text-stone-400">拍摄照片 PHOTOS</p>
         {capturedPhotos.length > 0 ? (
           <div className="flex gap-2 overflow-x-auto pb-1">
             {capturedPhotos.map((url, i) => {
@@ -376,11 +376,10 @@ export function ShotDetail({ shot, planId, profile, onComplete, onClose, onUpdat
         </button>
         <button
           onClick={() => { onComplete(); onClose() }}
-          disabled={isCompleted}
           className={`flex-1 h-11 rounded-xl text-sm font-medium tracking-[-0.011em] transition-all active:scale-[0.98] border
-            ${isCompleted ? 'border-stone-200 text-stone-300 cursor-default' : 'border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white'}`}
+            ${isCompleted ? 'border-stone-400 text-stone-500 hover:bg-stone-100' : 'border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white'}`}
         >
-          {isCompleted ? '已完成' : '标记完成'}
+          {isCompleted ? '已完成（点击撤销）' : '标记完成'}
         </button>
       </div>
 

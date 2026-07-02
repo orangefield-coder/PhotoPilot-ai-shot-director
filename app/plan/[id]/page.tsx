@@ -106,7 +106,8 @@ export default function PlanPage({ params }: PlanPageProps) {
   const handleComplete = async () => {
     if (!selectedShot) return
     await markComplete(selectedShot.id)
-    setSelectedShot((prev) => prev ? { ...prev, status: 'completed' } : null)
+    const newStatus = selectedShot.status === 'completed' ? 'pending' : 'completed'
+    setSelectedShot((prev) => prev ? { ...prev, status: newStatus as 'pending' | 'completed' } : null)
   }
 
   const handleRename = (name: string) => {
@@ -155,7 +156,7 @@ export default function PlanPage({ params }: PlanPageProps) {
       </div>
 
       <div className="px-4 pb-10">
-        <NineGrid plan={plan} completedCount={completedCount} onShotClick={handleShotClick} onReorder={reorderShots} onRename={handleRename} />
+        <NineGrid plan={plan} completedCount={completedCount} onShotClick={handleShotClick} onRename={handleRename} />
         {(xhsLoading || xhsItems.length > 0) && (
           <div className="overflow-hidden">
             <XhsRefPanel

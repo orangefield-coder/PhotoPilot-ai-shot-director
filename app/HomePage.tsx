@@ -8,7 +8,7 @@ import { SceneProfile, Plan } from '@/lib/types'
 import { getUserToken, saveLocalPlan } from '@/hooks/usePlan'
 import { supabase, STORAGE_BUCKET } from '@/lib/supabase'
 
-const SHOT_TYPES: string[] = ['日常', '写真', '街拍', '毕业照', '旅拍']
+const SHOT_TYPES: string[] = ['日常', '写真', '毕业照', '旅拍']
 const VISUAL_STYLES: string[] = ['校园风', '新中式', '港风', '生命力感', '文艺风']
 
 const LOADING_STEPS = ['正在分析场景', '正在规划照片', '正在生成任务']

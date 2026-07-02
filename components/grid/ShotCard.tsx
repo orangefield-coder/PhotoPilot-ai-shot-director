@@ -1,9 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
 import { Shot } from '@/lib/types'
 
 interface ShotCardProps {
@@ -12,31 +9,21 @@ interface ShotCardProps {
   onClick: () => void
 }
 
-export function ShotCard({ shot, index, onClick }: ShotCardProps) {
+export function ShotCard({ shot, onClick }: ShotCardProps) {
   const isCompleted = shot.status === 'completed'
   const hasPhoto = !!shot.selectedPhoto
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: shot.id })
-
-  const dragStyle = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    touchAction: 'none' as const,
-  }
 
   return (
-    <div ref={setNodeRef} style={dragStyle} className="relative w-full aspect-square">
+    <div className="relative w-full aspect-square">
       <div
-        className="relative flex flex-col items-start justify-between w-full h-full rounded-[20px] p-2.5 cursor-grab active:cursor-grabbing active:scale-[0.96] overflow-hidden transition-all duration-500"
+        className="relative flex flex-col items-start justify-between w-full h-full rounded-[20px] p-2.5 cursor-pointer active:scale-[0.96] overflow-hidden transition-all duration-500"
         style={{
-          opacity: isDragging ? 0.3 : 1,
           background: isCompleted && !hasPhoto ? '#e8ddd4' : '#f5f5f4',
           border: '0.5px solid rgba(255,255,255,0.55)',
           boxShadow: isCompleted && !hasPhoto
             ? '0 2px 16px rgba(180,150,120,0.25)'
             : '0 2px 12px rgba(0,0,0,0.06)',
         }}
-        {...attributes}
-        {...listeners}
         onClick={onClick}
       >
         {hasPhoto && (
@@ -62,4 +49,3 @@ export function ShotCard({ shot, index, onClick }: ShotCardProps) {
     </div>
   )
 }
-

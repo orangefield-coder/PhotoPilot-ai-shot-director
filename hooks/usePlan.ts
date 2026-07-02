@@ -39,10 +39,13 @@ export function usePlan(initialPlan?: Plan, planId?: string) {
   const markComplete = useCallback(async (shotId: number) => {
     if (!plan || !planId) return
 
+    const current = plan.shots.find((s) => s.id === shotId)
+    const newStatus = current?.status === 'completed' ? 'pending' : 'completed'
+
     const updated: Plan = {
       ...plan,
       shots: plan.shots.map((s) =>
-        s.id === shotId ? { ...s, status: 'completed' as const } : s
+        s.id === shotId ? { ...s, status: newStatus as 'pending' | 'completed' } : s
       ),
     }
     setPlan(updated) // optimistic
@@ -62,18 +65,20 @@ export function usePlan(initialPlan?: Plan, planId?: string) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ plan: updated }),
         })
-        // 埋点：镜头标记完成
-        const userToken = getUserToken()
-        fetch('/api/events', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userToken,
-            eventName: 'shot_completed',
-            planId,
-            shotId,
-          }),
-        }).catch(() => {})
+        // 埋点：镜头标记完成（仅在变为 completed 时）
+        if (newStatus === 'completed') {
+          const userToken = getUserToken()
+          fetch('/api/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userToken,
+              eventName: 'shot_completed',
+              planId,
+              shotId,
+            }),
+          }).catch(() => {})
+        }
       }
     } finally {
       setSaving(false)
