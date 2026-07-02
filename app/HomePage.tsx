@@ -130,6 +130,19 @@ export default function HomePage() {
       const saved = await saveRes.json()
 
       saveLocalPlan(saved.id, plan, { shot_type: shotType, selfie_url: selfieUrl, scene_url: sceneUrl, plan_name: plan.plan_name, visual_style: visualStyle, emotion })
+
+      // 埋点：方案生成成功
+      fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userToken,
+          eventName: 'plan_generated',
+          planId: saved.id,
+          properties: { shot_type: shotType, visual_style: visualStyle || null, emotion: emotion || null },
+        }),
+      }).catch(() => {})
+
       router.push(`/plan/${saved.id}`)
     } catch (err) {
       console.error(err)

@@ -62,6 +62,18 @@ export function usePlan(initialPlan?: Plan, planId?: string) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ plan: updated }),
         })
+        // 埋点：镜头标记完成
+        const userToken = getUserToken()
+        fetch('/api/events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userToken,
+            eventName: 'shot_completed',
+            planId,
+            shotId,
+          }),
+        }).catch(() => {})
       }
     } finally {
       setSaving(false)
