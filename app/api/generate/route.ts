@@ -13,11 +13,12 @@ async function callGenerate(profile: SceneProfile, shotType: string, emotion: st
     visualStyle
   )
 
-  const text = await chatComplete([{ role: 'user', content: prompt }])
+  const text = await chatComplete([{ role: 'user', content: prompt }], false)
   return parseJSON(text, PlanSchema)
 }
 
 export async function POST(req: NextRequest) {
+  const t0 = Date.now()
   try {
     const { profile, shotType, visualStyle, emotion = '' } = await req.json()
 
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'profile and shotType are required' }, { status: 400 })
     }
 
-    console.log('[generate] shotType:', shotType, 'visualStyle:', visualStyle, 'emotion:', emotion)
+    console.log('[generate] start | shotType:', shotType, 'visualStyle:', visualStyle)
 
     let plan
     try {
@@ -34,7 +35,7 @@ export async function POST(req: NextRequest) {
       plan = await callGenerate(profile, shotType, emotion, visualStyle)
     }
 
-    console.log('[generate] result:', JSON.stringify(plan, null, 2))
+    console.log(`[generate] ✓ total ${((Date.now() - t0) / 1000).toFixed(1)}s`)
 
     const aiKeywords: string[] = (plan as { xhs_keywords?: string[] }).xhs_keywords ?? []
     const result = { ...plan, xhsKeyword: aiKeywords[0] || shotType }

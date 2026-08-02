@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { Shot, SceneProfile } from '@/lib/types'
 import { supabase, STORAGE_BUCKET } from '@/lib/supabase'
+import { getUserToken } from '@/hooks/usePlan'
 import { ImageAnnotator } from './ImageAnnotator'
 import { CameraCapture } from './CameraCapture'
 import { loadPhotos, deletePhoto } from '@/lib/photoStore'
@@ -163,6 +164,25 @@ export function ShotDetail({ shot, planId, profile, onComplete, onClose, onUpdat
   const [generating, setGenerating] = useState(false)
   const [aiPrompt, setAiPrompt] = useState('')
   const [showPromptEdit, setShowPromptEdit] = useState(false)
+  const [shotRating, setShotRating] = useState<1 | -1 | null>(null)
+
+  const handleShotRate = async (value: 1 | -1) => {
+    const next = shotRating === value ? null : value
+    setShotRating(next)
+    if (next !== null) {
+      fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userToken: getUserToken(),
+          eventName: 'shot_rated',
+          planId,
+          shotId: shot.id,
+          properties: { rating: next },
+        }),
+      }).catch(() => {})
+    }
+  }
 
   const handleGenerate = async (customPrompt?: string) => {
     setGenerating(true)
@@ -363,6 +383,31 @@ export function ShotDetail({ shot, planId, profile, onComplete, onClose, onUpdat
         ) : (
           <p className="text-xs text-stone-300">拍摄后照片会出现在这里，点击选为封面</p>
         )}
+      </div>
+
+      {/* Shot rating */}
+      <div className="flex items-center justify-center gap-3 pt-2">
+        <span className="text-[10px] tracking-[0.15em] text-stone-400">这个引导对你有没有帮助？</span>
+        <button
+          onClick={() => handleShotRate(1)}
+          className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all
+            ${shotRating === 1 ? 'border-stone-700 bg-stone-700' : 'border-stone-300'}`}
+        >
+          <svg viewBox="0 0 24 24" className={`w-4 h-4 ${shotRating === 1 ? 'fill-white' : 'fill-stone-400'}`}>
+            <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/>
+            <path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3v11z"/>
+          </svg>
+        </button>
+        <button
+          onClick={() => handleShotRate(-1)}
+          className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all
+            ${shotRating === -1 ? 'border-stone-700 bg-stone-700' : 'border-stone-300'}`}
+        >
+          <svg viewBox="0 0 24 24" className={`w-4 h-4 ${shotRating === -1 ? 'fill-white' : 'fill-stone-400'}`}>
+            <path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/>
+            <path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17V2z"/>
+          </svg>
+        </button>
       </div>
 
       {/* Action buttons */}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { getUserToken, getLocalPlans } from '@/hooks/usePlan'
 
 interface PlanMeta {
@@ -85,7 +86,21 @@ export default function HistoryPage() {
           return (
             <div key={plan.id}
               className="bg-white rounded-2xl p-4 flex items-center gap-3 shadow-sm border border-stone-100">
-              <button onClick={() => router.push(`/plan/${plan.id}`)} className="flex-1 text-left">
+              {/* Thumbnail: scene > selfie > placeholder */}
+              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-stone-100 shrink-0">
+                {(plan.scene_url || plan.selfie_url) ? (
+                  <Image
+                    src={(plan.scene_url || plan.selfie_url)!}
+                    alt="素材"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-stone-300 text-lg">📷</div>
+                )}
+              </div>
+              <button onClick={() => router.push(`/plan/${plan.id}`)} className="flex-1 text-left min-w-0">
                 <p className="text-sm font-medium text-stone-800 mb-1">{title}</p>
                 <div className="flex flex-wrap gap-1 mb-1">
                   {tags.map((tag) => (

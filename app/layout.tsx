@@ -14,7 +14,7 @@ const notoSerifSC = Noto_Serif_SC({
 });
 
 export const metadata: Metadata = {
-  title: "拍摄规划 | AI Shot Planner",
+  title: "PhotoPilot | 拍档",
   description: "AI摄影导演，生成你的专属九宫格拍摄方案",
   manifest: "/manifest.json",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "拍摄规划" },

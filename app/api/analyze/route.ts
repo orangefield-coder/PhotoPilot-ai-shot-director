@@ -13,11 +13,12 @@ async function callAnalyze(selfieUrl: string, sceneUrl: string) {
         { type: 'input_text', text: SCENE_ANALYSIS_PROMPT },
       ],
     },
-  ])
+  ], false)
   return parseJSON(text, SceneProfileSchema)
 }
 
 export async function POST(req: NextRequest) {
+  const t0 = Date.now()
   try {
     const { selfieUrl, sceneUrl } = await req.json()
 
@@ -25,8 +26,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'selfieUrl and sceneUrl are required' }, { status: 400 })
     }
 
-    console.log('[analyze] selfieUrl:', selfieUrl)
-    console.log('[analyze] sceneUrl:', sceneUrl)
+    console.log('[analyze] start')
 
     let profile
     try {
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       profile = await callAnalyze(selfieUrl, sceneUrl)
     }
 
-    console.log('[analyze] result:', JSON.stringify(profile, null, 2))
+    console.log(`[analyze] ✓ total ${((Date.now() - t0) / 1000).toFixed(1)}s`)
     return NextResponse.json(profile)
   } catch (err) {
     console.error('[analyze]', err)

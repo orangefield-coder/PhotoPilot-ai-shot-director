@@ -11,11 +11,12 @@ type Message = {
   content: string | ContentPart[]
 }
 
-export async function chatComplete(messages: Message[]): Promise<string> {
+export async function chatComplete(messages: Message[], thinking = true): Promise<string> {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 180000)
+  const t0 = Date.now()
 
-  console.log('[qwen] calling', `${BASE_URL}/responses`, 'model:', QWEN_MODEL)
+  console.log('[qwen] →', thinking ? 'thinking:ON' : 'thinking:OFF', '| model:', QWEN_MODEL)
 
   let res: Response
   try {
@@ -25,7 +26,11 @@ export async function chatComplete(messages: Message[]): Promise<string> {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${API_KEY}`,
       },
-      body: JSON.stringify({ model: QWEN_MODEL, input: messages }),
+      body: JSON.stringify({
+        model: QWEN_MODEL,
+        input: messages,
+        ...(thinking ? {} : { thinking: { type: 'disabled' } }),
+      }),
       signal: controller.signal,
     })
   } finally {
@@ -38,7 +43,8 @@ export async function chatComplete(messages: Message[]): Promise<string> {
   }
 
   const data = await res.json()
-  console.log('[qwen] raw response keys:', Object.keys(data))
+  const elapsed = ((Date.now() - t0) / 1000).toFixed(1)
+  console.log(`[qwen] ✓ ${elapsed}s | keys:`, Object.keys(data))
   const message = data.output?.find((o: { type: string }) => o.type === 'message')
   return message?.content?.[0]?.text || ''
 }

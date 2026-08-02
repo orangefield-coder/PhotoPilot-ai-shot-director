@@ -9,6 +9,7 @@ import { ShotDetail } from '@/components/detail/ShotDetail'
 import { XhsRefPanel } from '@/components/grid/XhsRefPanel'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { usePlan, getLocalPlans, getUserToken } from '@/hooks/usePlan'
+import Image from 'next/image'
 
 interface PlanPageProps {
   params: Promise<{ id: string }>
@@ -21,12 +22,16 @@ export default function PlanPage({ params }: PlanPageProps) {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [initPlan, setInitPlan] = useState<Plan | null>(null)
+  const [selfieUrl, setSelfieUrl] = useState<string | null>(null)
+  const [sceneUrl, setSceneUrl] = useState<string | null>(null)
 
   useEffect(() => {
     // Try local first
     const locals = getLocalPlans()
     if (locals[id]) {
       setInitPlan(locals[id].plan)
+      setSelfieUrl(locals[id].meta.selfie_url || null)
+      setSceneUrl(locals[id].meta.scene_url || null)
       setLoading(false)
       return
     }
@@ -35,6 +40,8 @@ export default function PlanPage({ params }: PlanPageProps) {
       .then((r) => r.json())
       .then((data) => {
         if (data?.plan_json) setInitPlan(data.plan_json)
+        if (data?.selfie_url) setSelfieUrl(data.selfie_url)
+        if (data?.scene_url) setSceneUrl(data.scene_url)
       })
       .finally(() => setLoading(false))
   }, [id])
@@ -156,6 +163,25 @@ export default function PlanPage({ params }: PlanPageProps) {
       </div>
 
       <div className="px-4 pb-10">
+        {/* Source images */}
+        {(selfieUrl || sceneUrl) && (
+          <div className="flex gap-2 mb-4">
+            {selfieUrl && (
+              <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-stone-100 shrink-0">
+                <Image src={selfieUrl} alt="人物" fill className="object-cover" unoptimized />
+              </div>
+            )}
+            {sceneUrl && (
+              <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-stone-100 shrink-0">
+                <Image src={sceneUrl} alt="场景" fill className="object-cover" unoptimized />
+              </div>
+            )}
+            <div className="flex flex-col justify-center">
+              <p className="text-[10px] tracking-[0.15em] text-stone-400">上传素材</p>
+              <p className="text-[10px] text-stone-300 mt-0.5">{selfieUrl ? '人物' : ''}{selfieUrl && sceneUrl ? ' · ' : ''}{sceneUrl ? '场景' : ''}</p>
+            </div>
+          </div>
+        )}
         <NineGrid plan={plan} completedCount={completedCount} onShotClick={handleShotClick} onRename={handleRename} />
         {(xhsLoading || xhsItems.length > 0) && (
           <div className="overflow-hidden">
