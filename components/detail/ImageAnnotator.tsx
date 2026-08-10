@@ -33,6 +33,7 @@ export function ImageAnnotator({ imageUrl, onSave, onCancel }: Props) {
     if (!canvas) return
 
     const img = new window.Image()
+    img.crossOrigin = 'anonymous'   // prevent tainted-canvas on cross-origin images
     img.onload = () => {
       imgRef.current = img
       const maxW = window.innerWidth
@@ -44,6 +45,23 @@ export function ImageAnnotator({ imageUrl, onSave, onCancel }: Props) {
       overlay.width = canvas.width
       overlay.height = canvas.height
       canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height)
+    }
+    img.onerror = () => {
+      // crossOrigin request rejected — fall back without CORS header (canvas will be tainted but at least shows)
+      const fallback = new window.Image()
+      fallback.onload = () => {
+        imgRef.current = fallback
+        const maxW = window.innerWidth
+        const maxH = window.innerHeight * 0.72
+        const scale = Math.min(1, maxW / fallback.naturalWidth, maxH / fallback.naturalHeight)
+        canvas.width = Math.round(fallback.naturalWidth * scale)
+        canvas.height = Math.round(fallback.naturalHeight * scale)
+        const overlay = overlayRef.current!
+        overlay.width = canvas.width
+        overlay.height = canvas.height
+        canvas.getContext('2d')!.drawImage(fallback, 0, 0, canvas.width, canvas.height)
+      }
+      fallback.src = imageUrl
     }
     img.src = imageUrl
     return () => {}
@@ -131,10 +149,23 @@ export function ImageAnnotator({ imageUrl, onSave, onCancel }: Props) {
   }
 
   const handleSave = () => {
+    const canvas = canvasRef.current
+    if (!canvas) return
     try {
-      canvasRef.current!.toBlob((blob) => { if (blob) onSave(blob) }, 'image/jpeg', 0.9)
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            onSave(blob)
+          } else {
+            alert('导出失败，请重试。')
+          }
+        },
+        'image/jpeg',
+        0.9,
+      )
     } catch {
-      alert('无法导出标注图（跨域限制），请直接关闭。')
+      // tainted canvas — image loaded without CORS; prompt user
+      alert('无法导出标注图（图片跨域限制）。请关闭后重试，或检查图片来源。')
     }
   }
 

@@ -239,8 +239,7 @@ export default function HomePage() {
           <>
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-2">
-                <p className="text-[10px] tracking-[0.15em] uppercase text-stone-500">人物</p>
-                <ImageUploader label="上传自拍" sublabel="展示穿搭效果" value={selfie} onChange={setSelfie} icon="/icon-portraits.png" />
+                <ImageUploader label="上传人物" sublabel="展示穿搭效果" value={selfie} onChange={setSelfie} icon="/icon-portraits.png" />
                 <input
                   type="text"
                   value={personNotes}
@@ -250,7 +249,6 @@ export default function HomePage() {
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <p className="text-[10px] tracking-[0.15em] uppercase text-stone-500">拍摄场景</p>
                 <ImageUploader label="上传场景" sublabel="你要拍摄的地方" value={scene} onChange={setScene} icon="/icon-photo.png" />
                 <input
                   type="text"

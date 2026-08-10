@@ -1,7 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
 const API_KEY = process.env.VLM_API_KEY || ''
 const BASE_URL = process.env.VLM_BASE_URL || 'https://ark.cn-beijing.volces.com/api/v3'
+const STORAGE_BUCKET = 'shot-planner-images'
+
+function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  if (!url || !key) return null
+  return createClient(url, key)
+}
+
+async function persistImage(tempUrl: string, planId: string, shotId: number): Promise<string> {
+  const supabase = getSupabase()
+  if (!supabase) return tempUrl
+  try {
+    const res = await fetch(tempUrl, { signal: AbortSignal.timeout(30000) })
+    if (!res.ok) return tempUrl
+    const buffer = await res.arrayBuffer()
+    const path = `pose-refs/${planId}/${shotId}/ai-${Date.now()}.jpg`
+    const { error } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .upload(path, buffer, { contentType: 'image/jpeg' })
+    if (error) return tempUrl
+    const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path)
+    return data.publicUrl
+  } catch {
+    return tempUrl
+  }
+}
 const REWRITE_MODEL = 'doubao-seed-2-0-mini-260428'
 const IMAGE_MODEL = 'doubao-seedream-4-0-250828'
 
@@ -90,7 +118,11 @@ export async function POST(req: NextRequest) {
 
     const tempUrl = await generateImage(finalPrompt)
 
-    return NextResponse.json({ imageUrl: tempUrl, prompt: finalPrompt })
+    // Persist temp URL to Supabase Storage for permanent access
+    const imageUrl = await persistImage(tempUrl, planId, shotId)
+    console.log('[generate-ref] persisted:', imageUrl !== tempUrl ? 'supabase' : 'temp-fallback')
+
+    return NextResponse.json({ imageUrl, prompt: finalPrompt })
   } catch (err) {
     console.error('[generate-ref]', err)
     return NextResponse.json({ error: String(err) }, { status: 500 })
