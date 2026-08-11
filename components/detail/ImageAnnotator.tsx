@@ -170,9 +170,10 @@ export function ImageAnnotator({ imageUrl, onSave, onCancel }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-      {/* Top bar: cancel + save */}
-      <div className="flex items-center justify-between px-4 py-3 bg-stone-900 shrink-0">
+    <div className="fixed inset-0 z-50 bg-black flex flex-col">
+      {/* Top bar: cancel + save — padded for notch/status-bar */}
+      <div className="flex items-center justify-between px-4 bg-stone-900 shrink-0"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)', paddingBottom: '12px' }}>
         <button onClick={onCancel} className="text-sm text-stone-400 hover:text-white px-2">取消</button>
         <p className="text-xs text-stone-500 tracking-widest">标注</p>
         <button onClick={handleSave} className="text-sm bg-white text-stone-900 font-medium px-4 py-1.5 rounded-lg">完成</button>
